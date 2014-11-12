@@ -1,0 +1,5 @@
+package storm.blueprints.utils;
+
+public class Utils {
+
+}

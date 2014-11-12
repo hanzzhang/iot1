@@ -1,0 +1,16 @@
+eventhubspout.username = storm
+
+eventhubspout.password = qvteK/WsADgDgiIH16iN3XuCn8KOSkcvqGlRvs0RCvc=
+
+eventhubspout.namespace = pnp-iot
+
+eventhubspout.entitypath = drewstormeh
+
+eventhubspout.partitions.count = 8
+
+# if not provided, will use storm's zookeeper settings
+# zookeeper.connectionstring=localhost:2181
+
+eventhubspout.checkpoint.interval = 10
+
+eventhub.receiver.credits = 1024

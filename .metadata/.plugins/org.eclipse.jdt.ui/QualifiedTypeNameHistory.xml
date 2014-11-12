@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="backtype.storm.utils.Utils"/>
+<fullyQualifiedTypeName name="org.apache.jute.Utils"/>
+<fullyQualifiedTypeName name="storm.blueprints.utils.Utils"/>
+<fullyQualifiedTypeName name="backtype.storm.tuple.Fields"/>
+<fullyQualifiedTypeName name="backtype.storm.tuple.Values"/>
+<fullyQualifiedTypeName name="java.util.concurrent.ConcurrentHashMap"/>
+<fullyQualifiedTypeName name="java.util.UUID"/>
+<fullyQualifiedTypeName name="backtype.storm.StormSubmitter"/>
+<fullyQualifiedTypeName name="java.nio.file.FileSystem"/>
+<fullyQualifiedTypeName name="java.nio.file.Path"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.fs.FileSystem"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.conf.Configuration"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.fs.Path"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.io.SequenceFile"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.io.LongWritable"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.fs.FSDataOutputStream"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="java.io.InputStreamReader"/>
+<fullyQualifiedTypeName name="java.net.URI"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.HdfsBolt"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.format.RecordFormat"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.format.DelimitedRecordFormat"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.sync.SyncPolicy"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.sync.CountSyncPolicy"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.rotation.FileRotationPolicy"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.rotation.FileSizeRotationPolicy"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.format.FileNameFormat"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.format.DefaultFileNameFormat"/>
+<fullyQualifiedTypeName name="org.apache.storm.hdfs.bolt.rotation.FileSizeRotationPolicy.Units"/>
+</qualifiedTypeNameHistroy>

@@ -1,0 +1,4 @@
+package storm.blueprints.chapter1.v1;
+public class AppendToBlob {
+
+}

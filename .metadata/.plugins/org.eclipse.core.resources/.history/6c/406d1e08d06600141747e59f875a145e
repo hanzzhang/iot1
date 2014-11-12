@@ -1,0 +1,10 @@
+package storm.blueprints.chapter1.v1;
+
+public class AppendToBlob {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}
