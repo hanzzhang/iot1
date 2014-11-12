@@ -6,8 +6,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,14 +43,5 @@ public class ReportBolt extends BaseRichBolt {
             System.out.println(key + " : " + this.counts.get(key));
         }
         System.out.println("--------------");
-    }
-    private void writeToBlob()
-    {
-//    	Configuration configuration = new Configuration();
-//    	FileSystem fs = Path.getFileSystem(conf);
-//    	SequenceFile.Writer inputWriter = new SequenceFile.Writer(fs, conf, path, LongWritable.class, MyWritable.class);
-//    	inputWriter.append(new LongWritable(uniqueId++), new MyWritable(data));
-//    	inputWriter.close();
-//    }
     }
 }

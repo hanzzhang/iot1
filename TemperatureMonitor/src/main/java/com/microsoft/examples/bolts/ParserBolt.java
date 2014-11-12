@@ -8,7 +8,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import com.microsoft.examples.helpers.EventHubMessage;;
 
