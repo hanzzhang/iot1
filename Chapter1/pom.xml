@@ -48,13 +48,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>storm-hdfs-0.9.1.2.1.6.0-2103</groupId> -->
-<!-- 			<artifactId>storm-hdfs-0.9.1.2.1.6.0-2103</artifactId> -->
-<!-- 			<scope>system</scope> -->
-<!-- 			<version>1.0</version> -->
-<!-- 			<systemPath>${basedir}\src\lib\storm-hdfs-0.9.1.2.1.6.0-2103.jar</systemPath> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>storm-hdfs-0.9.1.2.1.6.0-2103</groupId> -->
+		<!-- <artifactId>storm-hdfs-0.9.1.2.1.6.0-2103</artifactId> -->
+		<!-- <scope>system</scope> -->
+		<!-- <version>1.0</version> -->
+		<!-- <systemPath>${basedir}\src\lib\storm-hdfs-0.9.1.2.1.6.0-2103.jar</systemPath> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>com.github.ptgoetz</groupId>
 			<artifactId>storm-hdfs</artifactId>
@@ -72,6 +72,15 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.2</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
