@@ -1,0 +1,13 @@
+PerfCount, AppAvro
+outer loops, 10
+inner loops, 10
+objects, 100
+Mini seconds elapsed , 188
+CommittedVirtualMemorySize , 250617856
+FreePhysicalMemorySize , 4933226496
+FreeSwapSpaceSize , 12733763584
+ProcessCpuLoad , -1.0
+ProcessCpuTime , 1015625000
+SystemCpuLoad , 0.2500255990169977
+TotalPhysicalMemorySize , 8398577664
+TotalSwapSpaceSize , 16988512256

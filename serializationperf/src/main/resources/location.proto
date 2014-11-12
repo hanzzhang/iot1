@@ -1,0 +1,17 @@
+// to create the java class: start command prompt and run in the resources folder
+// protoc.exe --java_out . location.proto
+
+package pnpiot.serializationperf;
+
+option java_package = "pnpiot.serializationperf";
+option java_outer_classname = "LocationProtobuf";
+
+message Location {
+	required int64 timeStamp = 1;
+	required int32 fixType = 2; 
+	required int32 latitude = 3;
+	required int32 longitude = 4;
+	required int32 heading = 5;
+	required int32 altitude = 6;
+	required int32 speed = 7; 
+}

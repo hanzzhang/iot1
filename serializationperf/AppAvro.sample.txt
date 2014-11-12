@@ -1,0 +1,61 @@
+AppAvro Deserialized Data Sample
+{"timeStamp": 1414710222873, "fixType": 0, "latitude": 200000, "longitude": 300000, "heading": 400000, "altitude": 500000, "speed": 0}
+{"timeStamp": 1414710222873, "fixType": 0, "latitude": 200000, "longitude": 300000, "heading": 400000, "altitude": 500000, "speed": 0}
+{"timeStamp": 1414710222873, "fixType": 0, "latitude": 200000, "longitude": 300000, "heading": 400000, "altitude": 500000, "speed": 0}
+{"timeStamp": 1414710222873, "fixType": 0, "latitude": 200000, "longitude": 300000, "heading": 400000, "altitude": 500000, "speed": 0}
+{"timeStamp": 1414710222873, "fixType": 0, "latitude": 200000, "longitude": 300000, "heading": 400000, "altitude": 500000, "speed": 0}
+
+{"timeStamp": 1414710222920, "fixType": 1, "latitude": 200001, "longitude": 300001, "heading": 400001, "altitude": 500001, "speed": 1}
+{"timeStamp": 1414710222920, "fixType": 1, "latitude": 200001, "longitude": 300001, "heading": 400001, "altitude": 500001, "speed": 1}
+{"timeStamp": 1414710222920, "fixType": 1, "latitude": 200001, "longitude": 300001, "heading": 400001, "altitude": 500001, "speed": 1}
+{"timeStamp": 1414710222920, "fixType": 1, "latitude": 200001, "longitude": 300001, "heading": 400001, "altitude": 500001, "speed": 1}
+{"timeStamp": 1414710222920, "fixType": 1, "latitude": 200001, "longitude": 300001, "heading": 400001, "altitude": 500001, "speed": 1}
+
+{"timeStamp": 1414710222936, "fixType": 2, "latitude": 200002, "longitude": 300002, "heading": 400002, "altitude": 500002, "speed": 2}
+{"timeStamp": 1414710222936, "fixType": 2, "latitude": 200002, "longitude": 300002, "heading": 400002, "altitude": 500002, "speed": 2}
+{"timeStamp": 1414710222936, "fixType": 2, "latitude": 200002, "longitude": 300002, "heading": 400002, "altitude": 500002, "speed": 2}
+{"timeStamp": 1414710222936, "fixType": 2, "latitude": 200002, "longitude": 300002, "heading": 400002, "altitude": 500002, "speed": 2}
+{"timeStamp": 1414710222936, "fixType": 2, "latitude": 200002, "longitude": 300002, "heading": 400002, "altitude": 500002, "speed": 2}
+
+{"timeStamp": 1414710222952, "fixType": 3, "latitude": 200003, "longitude": 300003, "heading": 400003, "altitude": 500003, "speed": 3}
+{"timeStamp": 1414710222952, "fixType": 3, "latitude": 200003, "longitude": 300003, "heading": 400003, "altitude": 500003, "speed": 3}
+{"timeStamp": 1414710222952, "fixType": 3, "latitude": 200003, "longitude": 300003, "heading": 400003, "altitude": 500003, "speed": 3}
+{"timeStamp": 1414710222952, "fixType": 3, "latitude": 200003, "longitude": 300003, "heading": 400003, "altitude": 500003, "speed": 3}
+{"timeStamp": 1414710222952, "fixType": 3, "latitude": 200003, "longitude": 300003, "heading": 400003, "altitude": 500003, "speed": 3}
+
+{"timeStamp": 1414710222967, "fixType": 4, "latitude": 200004, "longitude": 300004, "heading": 400004, "altitude": 500004, "speed": 4}
+{"timeStamp": 1414710222967, "fixType": 4, "latitude": 200004, "longitude": 300004, "heading": 400004, "altitude": 500004, "speed": 4}
+{"timeStamp": 1414710222967, "fixType": 4, "latitude": 200004, "longitude": 300004, "heading": 400004, "altitude": 500004, "speed": 4}
+{"timeStamp": 1414710222967, "fixType": 4, "latitude": 200004, "longitude": 300004, "heading": 400004, "altitude": 500004, "speed": 4}
+{"timeStamp": 1414710222967, "fixType": 4, "latitude": 200004, "longitude": 300004, "heading": 400004, "altitude": 500004, "speed": 4}
+
+{"timeStamp": 1414710222983, "fixType": 5, "latitude": 200005, "longitude": 300005, "heading": 400005, "altitude": 500005, "speed": 5}
+{"timeStamp": 1414710222983, "fixType": 5, "latitude": 200005, "longitude": 300005, "heading": 400005, "altitude": 500005, "speed": 5}
+{"timeStamp": 1414710222983, "fixType": 5, "latitude": 200005, "longitude": 300005, "heading": 400005, "altitude": 500005, "speed": 5}
+{"timeStamp": 1414710222983, "fixType": 5, "latitude": 200005, "longitude": 300005, "heading": 400005, "altitude": 500005, "speed": 5}
+{"timeStamp": 1414710222983, "fixType": 5, "latitude": 200005, "longitude": 300005, "heading": 400005, "altitude": 500005, "speed": 5}
+
+{"timeStamp": 1414710222983, "fixType": 6, "latitude": 200006, "longitude": 300006, "heading": 400006, "altitude": 500006, "speed": 6}
+{"timeStamp": 1414710222983, "fixType": 6, "latitude": 200006, "longitude": 300006, "heading": 400006, "altitude": 500006, "speed": 6}
+{"timeStamp": 1414710222983, "fixType": 6, "latitude": 200006, "longitude": 300006, "heading": 400006, "altitude": 500006, "speed": 6}
+{"timeStamp": 1414710222983, "fixType": 6, "latitude": 200006, "longitude": 300006, "heading": 400006, "altitude": 500006, "speed": 6}
+{"timeStamp": 1414710222983, "fixType": 6, "latitude": 200006, "longitude": 300006, "heading": 400006, "altitude": 500006, "speed": 6}
+
+{"timeStamp": 1414710222998, "fixType": 7, "latitude": 200007, "longitude": 300007, "heading": 400007, "altitude": 500007, "speed": 7}
+{"timeStamp": 1414710222998, "fixType": 7, "latitude": 200007, "longitude": 300007, "heading": 400007, "altitude": 500007, "speed": 7}
+{"timeStamp": 1414710222998, "fixType": 7, "latitude": 200007, "longitude": 300007, "heading": 400007, "altitude": 500007, "speed": 7}
+{"timeStamp": 1414710222998, "fixType": 7, "latitude": 200007, "longitude": 300007, "heading": 400007, "altitude": 500007, "speed": 7}
+{"timeStamp": 1414710222998, "fixType": 7, "latitude": 200007, "longitude": 300007, "heading": 400007, "altitude": 500007, "speed": 7}
+
+{"timeStamp": 1414710223030, "fixType": 8, "latitude": 200008, "longitude": 300008, "heading": 400008, "altitude": 500008, "speed": 8}
+{"timeStamp": 1414710223030, "fixType": 8, "latitude": 200008, "longitude": 300008, "heading": 400008, "altitude": 500008, "speed": 8}
+{"timeStamp": 1414710223030, "fixType": 8, "latitude": 200008, "longitude": 300008, "heading": 400008, "altitude": 500008, "speed": 8}
+{"timeStamp": 1414710223030, "fixType": 8, "latitude": 200008, "longitude": 300008, "heading": 400008, "altitude": 500008, "speed": 8}
+{"timeStamp": 1414710223030, "fixType": 8, "latitude": 200008, "longitude": 300008, "heading": 400008, "altitude": 500008, "speed": 8}
+
+{"timeStamp": 1414710223045, "fixType": 9, "latitude": 200009, "longitude": 300009, "heading": 400009, "altitude": 500009, "speed": 9}
+{"timeStamp": 1414710223045, "fixType": 9, "latitude": 200009, "longitude": 300009, "heading": 400009, "altitude": 500009, "speed": 9}
+{"timeStamp": 1414710223045, "fixType": 9, "latitude": 200009, "longitude": 300009, "heading": 400009, "altitude": 500009, "speed": 9}
+{"timeStamp": 1414710223045, "fixType": 9, "latitude": 200009, "longitude": 300009, "heading": 400009, "altitude": 500009, "speed": 9}
+{"timeStamp": 1414710223045, "fixType": 9, "latitude": 200009, "longitude": 300009, "heading": 400009, "altitude": 500009, "speed": 9}
+
