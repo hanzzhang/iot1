@@ -13,9 +13,12 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 
 public class SentenceSpout extends BaseRichSpout {
+	private static final long serialVersionUID = 1L;
 	private ConcurrentHashMap<UUID, Values> pending;
 	private SpoutOutputCollector collector;
-	private String[] sentences = { "my dog has fleas", "i like cold beverages", "the dog ate my homework", "don't have a cow man", "i don't think i like fleas" };
+	private String[] sentences = { "my dog has fleas", "i like cold beverages",
+			"the dog ate my homework", "don't have a cow man",
+			"i don't think i like fleas" };
 	private int index = 0;
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
@@ -23,7 +26,9 @@ public class SentenceSpout extends BaseRichSpout {
 		this.pending = new ConcurrentHashMap<UUID, Values>();
 	}
 
-	public void open(Map config, TopologyContext context, SpoutOutputCollector collector) {
+	@SuppressWarnings("rawtypes")
+	public void open(Map config, TopologyContext context,
+			SpoutOutputCollector collector) {
 		this.collector = collector;
 	}
 

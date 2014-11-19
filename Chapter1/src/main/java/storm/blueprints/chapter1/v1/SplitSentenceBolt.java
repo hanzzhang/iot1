@@ -11,8 +11,11 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
 public class SplitSentenceBolt extends BaseRichBolt {
+	private static final long serialVersionUID = 1L;
+
 	private OutputCollector collector;
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void prepare(Map stormConf, TopologyContext context,
 			OutputCollector collector) {
@@ -28,7 +31,7 @@ public class SplitSentenceBolt extends BaseRichBolt {
 		for (String word : words) {
 			this.collector.emit(tuple, new Values(word));
 		}
-		this.collector.ack(tuple);		
+		this.collector.ack(tuple);
 	}
 
 	@Override

@@ -7,13 +7,17 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class WordCountBolt extends BaseRichBolt {
+	private static final long serialVersionUID = 1L;
+
 	private OutputCollector collector;
 	private HashMap<String, Long> counts = null;
 
+	@SuppressWarnings("rawtypes")
 	public void prepare(Map config, TopologyContext context, OutputCollector collector) {
 		this.collector = collector;
 		this.counts = new HashMap<String, Long>();

@@ -45,8 +45,7 @@ public class Temperature
       properties.load(new FileReader(args[1]));
     }
     else {
-      properties.load(Temperature.class.getClassLoader().getResourceAsStream(
-        "Config.properties"));
+			properties.load(Temperature.class.getClassLoader().getResourceAsStream("Config.properties"));
     }
 
     String username = properties.getProperty("eventhubspout.username");

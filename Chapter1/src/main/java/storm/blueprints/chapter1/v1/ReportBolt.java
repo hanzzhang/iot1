@@ -13,35 +13,38 @@ import java.util.List;
 import java.util.Map;
 
 public class ReportBolt extends BaseRichBolt {
+	private static final long serialVersionUID = 1L;
 
-    private HashMap<String, Long> counts = null;
+	private HashMap<String, Long> counts = null;
 	private OutputCollector collector;
 
-    public void prepare(Map config, TopologyContext context, OutputCollector collector) {
-        this.counts = new HashMap<String, Long>();
-        this.collector = collector;
-    }
+	@SuppressWarnings("rawtypes")
+	public void prepare(Map config, TopologyContext context,
+			OutputCollector collector) {
+		this.counts = new HashMap<String, Long>();
+		this.collector = collector;
+	}
 
-    public void execute(Tuple tuple) {
-        String word = tuple.getStringByField("word");
-        Long count = tuple.getLongByField("count");
-        this.counts.put(word, count);
-		this.collector.ack(tuple);		
-    }
+	public void execute(Tuple tuple) {
+		String word = tuple.getStringByField("word");
+		Long count = tuple.getLongByField("count");
+		this.counts.put(word, count);
+		this.collector.ack(tuple);
+	}
 
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        // this bolt does not emit anything
-    }
+	public void declareOutputFields(OutputFieldsDeclarer declarer) {
+		// this bolt does not emit anything
+	}
 
-    @Override
-    public void cleanup() {
-        System.out.println("--- FINAL COUNTS ---");
-        List<String> keys = new ArrayList<String>();
-        keys.addAll(this.counts.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            System.out.println(key + " : " + this.counts.get(key));
-        }
-        System.out.println("--------------");
-    }
+	@Override
+	public void cleanup() {
+		System.out.println("--- FINAL COUNTS ---");
+		List<String> keys = new ArrayList<String>();
+		keys.addAll(this.counts.keySet());
+		Collections.sort(keys);
+		for (String key : keys) {
+			System.out.println(key + " : " + this.counts.get(key));
+		}
+		System.out.println("--------------");
+	}
 }
