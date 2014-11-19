@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>storm-blueprints</groupId>
-	<artifactId>sensor-data</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>chapter</artifactId>
+	<version>3</version>
 	<packaging>jar</packaging>
 
 	<name>sensor-data</name>

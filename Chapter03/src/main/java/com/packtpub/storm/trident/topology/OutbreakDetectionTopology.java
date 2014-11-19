@@ -41,6 +41,5 @@ public class OutbreakDetectionTopology {
 		} else {
 			StormSubmitter.submitTopology(args[0], conf, buildTopology());
 		}        
-        
     }
 }

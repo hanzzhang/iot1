@@ -3,9 +3,6 @@ package com.packtpub.storm.trident.topology;
 import java.io.FileReader;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
@@ -20,34 +17,68 @@ import com.packtpub.storm.trident.state.OutbreakTrendFactory;
 
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
-import storm.trident.operation.BaseFilter;
 import storm.trident.operation.builtin.Count;
-import storm.trident.tuple.TridentTuple;
 
 public class OutbreakDetectionTopology1 {
+	public static void main(String[] args) throws Exception {
+		StormTopology stormTopology = buildStromTopology(args);
 
-    public static void main(String[] args) throws Exception {
-		EventHubSpoutConfig spoutConfig = readEHConfig(args);
-		StormTopology topology = buildTopology(spoutConfig);
-
-		Config config = new Config();
-		//config.registerMetricsConsumer(LoggingMetricsConsumer.class, 1L);
 		if ((args != null) && (args.length > 0)) {
-			config.setNumWorkers(spoutConfig.getPartitionCount());
-			StormSubmitter.submitTopology(args[0], config, topology);
+			// if running in storm cluster
+			Config config = new Config();
+			int numWorkers = getNumWorkers(args);
+			config.setNumWorkers(numWorkers);
+			// config.registerMetricsConsumer(LoggingMetricsConsumer.class, 1L);
+			StormSubmitter.submitTopology(args[0], config, stormTopology);
 		} else {
-			//config.setMaxTaskParallelism(2);
+			// if running in local development environment
+			Config config = new Config();
+			config.setMaxTaskParallelism(2);
 			LocalCluster localCluster = new LocalCluster();
-			localCluster.submitTopology("test", config, topology);
+			localCluster.submitTopology("test", config, stormTopology);
 			Thread.sleep(5000000L);
 			localCluster.shutdown();
 		}
-    }
-    
+	}
+
+	static StormTopology buildStromTopology(String[] args) throws Exception {
+		TridentTopology tridentTopology = new TridentTopology();
+		Stream inputStream = null;
+
+		boolean useEventHubSpout = true;
+		if ((args != null) && args.length > 1 && args[1].toLowerCase().compareTo("test") != 0) {
+			useEventHubSpout = false;
+		}
+		
+		// useEventHubSpout = false;
+
+		if (useEventHubSpout) {
+			System.out.println("useEventHubSpout = " + useEventHubSpout);
+			OpaqueTridentEventHubSpout spout = createOpaqueTridentEventHubSpout(args);
+			inputStream = tridentTopology.newStream("message", spout);
+		} else {
+			System.out.println("useEventHubSpout = " + useEventHubSpout);
+			DiagnosisEventSpout spout = new DiagnosisEventSpout();
+			inputStream = tridentTopology.newStream("message", spout);
+		}
+
+		inputStream.each(new Fields("message"), new DiseaseFilter()).each(new Fields("message"), new CityAssignment(), new Fields("city"))
+				.each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour")).groupBy(new Fields("cityDiseaseHour"))
+				.persistentAggregate(new OutbreakTrendFactory(), new Count(), new Fields("count")).newValuesStream()
+				.each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert")).each(new Fields("alert"), new DispatchAlert(), new Fields());
+		return tridentTopology.build();
+	}
+
+	static OpaqueTridentEventHubSpout createOpaqueTridentEventHubSpout(String[] args) throws Exception {
+		EventHubSpoutConfig spoutConfig = readEHConfig(args);
+		OpaqueTridentEventHubSpout spout = new OpaqueTridentEventHubSpout(spoutConfig);
+		return spout;
+	}
+
 	static EventHubSpoutConfig readEHConfig(String[] args) throws Exception {
 		EventHubSpoutConfig spoutConfig;
 		Properties properties = new Properties();
-		if (args.length > 1) {
+		if ((args != null) && args.length > 1 && args[1].toLowerCase().compareTo("test") != 0 ) {
 			properties.load(new FileReader(args[1]));
 		} else {
 			properties.load(OutbreakDetectionTopology1.class.getClassLoader().getResourceAsStream("Config.properties"));
@@ -66,32 +97,26 @@ public class OutbreakDetectionTopology1 {
 		System.out.println("  namespaceName: " + namespaceName);
 		System.out.println("  entityPath: " + entityPath);
 		System.out.println("  zkEndpointAddress: " + zkEndpointAddress);
-			System.out.println("  partition count: " + partitionCount);
+		System.out.println("  partition count: " + partitionCount);
 		System.out.println("  checkpoint interval: " + checkpointIntervalInSeconds);
 		System.out.println("  receiver credits: " + receiverCredits);
 		spoutConfig = new EventHubSpoutConfig(username, password, namespaceName, entityPath, partitionCount, zkEndpointAddress, checkpointIntervalInSeconds, receiverCredits);
-		if (args.length > 0) {
+		if ((args != null) && args.length > 0) {
 			spoutConfig.setTopologyName(args[0]);
 		}
 		return spoutConfig;
 	}
 
-    static StormTopology buildTopology(EventHubSpoutConfig spoutConfig) {
-        TridentTopology topology = new TridentTopology();
-        
-//		OpaqueTridentEventHubSpout spout = new OpaqueTridentEventHubSpout(spoutConfig);	
-        DiagnosisEventSpout spout = new DiagnosisEventSpout();
-        
-        Stream inputStream = topology.newStream("message", spout);
+	static int getNumWorkers(String[] args) throws Exception {
+		Properties properties = new Properties();
+		if ((args != null) && args.length > 1 && args[1].toLowerCase().compareTo("test") != 0) {
+			// read properties from the file specified by storm command line
+			properties.load(new FileReader(args[1]));
+		} else {
+			// read properties from the Config.properties file
+			properties.load(OutbreakDetectionTopology1.class.getClassLoader().getResourceAsStream("Config.properties"));
+		}
+		return Integer.parseInt(properties.getProperty("eventhubspout.partitions.count"));
+	}
 
-        inputStream.each(new Fields("message"), new DiseaseFilter())
-                .each(new Fields("message"), new CityAssignment(), new Fields("city"))
-                .each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour"))
-                .groupBy(new Fields("cityDiseaseHour"))
-                .persistentAggregate(new OutbreakTrendFactory(), new Count(), new Fields("count")).newValuesStream()
-                .each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert"))
-                .each(new Fields("alert"), new DispatchAlert(), new Fields());
-        return topology.build();
-    }
-    
 }
