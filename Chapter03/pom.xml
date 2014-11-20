@@ -62,6 +62,11 @@
 			<artifactId>gson</artifactId>
 			<version>2.3</version>
 		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.5.0.ssl</version>
+		</dependency>
 	</dependencies>
 
 	<build>

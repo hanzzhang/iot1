@@ -21,4 +21,8 @@ public class OutbreakDetector extends BaseFunction {
             collector.emit(values);
         }
     }
+    void writeToRedis(){
+    	
+    	
+    }
 }
