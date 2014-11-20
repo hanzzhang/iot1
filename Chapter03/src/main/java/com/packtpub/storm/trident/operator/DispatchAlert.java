@@ -15,21 +15,22 @@ public class DispatchAlert extends BaseFunction {
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 		String alert = (String) tuple.getValue(0);
 		Logger logger = (Logger) LoggerFactory.getLogger(DispatchAlert.class);
-		logger.info("Hanz ALERT RECEIVED [" + alert + "]");
-		logger.info("Hanz Dispatch the national guard!");
-
+		String alertString = "ALERT !!! ALERT !!! ALERT !!! [" + alert + "]";
+		logger.info(alertString);
+		writeToRedis(alertString);
+		// System.exit(0);
+	}
+	void writeToRedis(String alertString){
 		String host = "hanzredis1.redis.cache.windows.net";
 		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		jedis.auth("eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=");
 		jedis.connect();
 		if (jedis.isConnected()) {
-			System.out.println("jedis.ping() result: " + jedis.ping());// PONG
-			jedis.lpush("alerts", alert);
+			jedis.lpush("alerts", alertString);
 		} else {
-			System.out.println("connection error");
+			Logger logger = (Logger) LoggerFactory.getLogger(DispatchAlert.class);
+			logger.error("cannot cannect to redis");
 		}
 		jedis.close();
-		// System.exit(0);
 	}
-	
 }

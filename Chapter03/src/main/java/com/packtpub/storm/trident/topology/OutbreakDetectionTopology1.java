@@ -22,14 +22,15 @@ import storm.trident.operation.builtin.Count;
 
 public class OutbreakDetectionTopology1 {
 	public static void main(String[] args) throws Exception {
-		flushRedisDB();
-		StormTopology stormTopology = buildStromTopology(args);
+		//flushRedisDB();
+		StormTopology stormTopology = buildStormTopology(args);
 
 		if ((args != null) && (args.length > 0)) {
 			// if running in storm cluster
 			Config config = new Config();
 			int numWorkers = getNumWorkers(args);
 			config.setNumWorkers(numWorkers);
+			System.out.println("Number of workers = " + numWorkers);
 			// config.registerMetricsConsumer(LoggingMetricsConsumer.class, 1L);
 			StormSubmitter.submitTopology(args[0], config, stormTopology);
 		} else {
@@ -37,12 +38,12 @@ public class OutbreakDetectionTopology1 {
 			Config config = new Config();
 			config.setMaxTaskParallelism(2);
 			LocalCluster localCluster = new LocalCluster();
-			localCluster.submitTopology("test", config, stormTopology);
+			localCluster.submitTopology("localTopology", config, stormTopology);
 			Thread.sleep(5000000L);
 			localCluster.shutdown();
 		}
 	}
-	
+
 	static void flushRedisDB() {
 		String host = "hanzredis1.redis.cache.windows.net";
 		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
@@ -56,15 +57,15 @@ public class OutbreakDetectionTopology1 {
 		jedis.close();
 	}
 
-	static StormTopology buildStromTopology(String[] args) throws Exception {
+	static StormTopology buildStormTopology(String[] args) throws Exception {
 		TridentTopology tridentTopology = new TridentTopology();
 		Stream inputStream = null;
 
 		boolean useEventHubSpout = true;
-		if ((args != null) && args.length > 1 && args[1].toLowerCase().compareTo("test") != 0) {
+		if ((args != null) && args.length > 1 && args[1].toLowerCase().equals("test")) {
 			useEventHubSpout = false;
 		}
-		
+
 		// useEventHubSpout = false;
 
 		if (useEventHubSpout) {
@@ -77,13 +78,10 @@ public class OutbreakDetectionTopology1 {
 			inputStream = tridentTopology.newStream("message", spout);
 		}
 
-		inputStream.each(new Fields("message"), new DiseaseFilter())
-		.each(new Fields("message"), new CityAssignment(), new Fields("city"))
-				.each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour"))
-				.groupBy(new Fields("cityDiseaseHour"))
+		inputStream.each(new Fields("message"), new DiseaseFilter()).each(new Fields("message"), new CityAssignment(), new Fields("city"))
+				.each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour")).groupBy(new Fields("cityDiseaseHour"))
 				.persistentAggregate(new OutbreakTrendFactory(), new Count(), new Fields("count")).newValuesStream()
-				.each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert"))
-				.each(new Fields("alert"), new DispatchAlert(), new Fields());
+				.each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert")).each(new Fields("alert"), new DispatchAlert(), new Fields());
 		return tridentTopology.build();
 	}
 
@@ -96,9 +94,11 @@ public class OutbreakDetectionTopology1 {
 	static EventHubSpoutConfig readEHConfig(String[] args) throws Exception {
 		EventHubSpoutConfig spoutConfig;
 		Properties properties = new Properties();
-		if ((args != null) && args.length > 1 && args[1].toLowerCase().compareTo("test") != 0 ) {
+		if ((args != null) && args.length > 1 && !args[1].toLowerCase().equals("test")) {
+			System.out.println("Loding config file from file " + args[1]);
 			properties.load(new FileReader(args[1]));
 		} else {
+			System.out.println("Loding config file from Config.properties");
 			properties.load(OutbreakDetectionTopology1.class.getClassLoader().getResourceAsStream("Config.properties"));
 		}
 		String username = properties.getProperty("eventhubspout.username");
@@ -127,7 +127,7 @@ public class OutbreakDetectionTopology1 {
 
 	static int getNumWorkers(String[] args) throws Exception {
 		Properties properties = new Properties();
-		if ((args != null) && args.length > 1 && args[1].toLowerCase().compareTo("test") != 0) {
+		if ((args != null) && args.length > 1 && !args[1].toLowerCase().equals("test")) {
 			// read properties from the file specified by storm command line
 			properties.load(new FileReader(args[1]));
 		} else {

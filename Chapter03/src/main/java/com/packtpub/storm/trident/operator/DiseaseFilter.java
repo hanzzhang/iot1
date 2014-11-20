@@ -1,12 +1,5 @@
 package com.packtpub.storm.trident.operator;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-
 import com.google.gson.Gson;
 import com.packtpub.storm.trident.model.DiagnosisEvent;
 
@@ -26,10 +19,11 @@ public class DiseaseFilter extends BaseFilter {
         DiagnosisEvent diagnosis = (new Gson()).fromJson(tuple.getString(0), DiagnosisEvent.class);
         Integer code = Integer.parseInt(diagnosis.diagnosisCode);
         if (code.intValue() <= 322) {
-            LOG.debug("Emitting disease [" + code + "]");
+            //LOG.debug("Emitting disease [" + code + "]");
+            //System.out.println("Emitting disease [" + code + "]");
             return true;
         } else {
-            LOG.debug("Filtering disease [" + code + "]");
+            //LOG.debug("Filtering disease [" + code + "]");
             return false;
         }
     }

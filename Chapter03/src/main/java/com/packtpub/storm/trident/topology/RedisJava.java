@@ -9,7 +9,7 @@ public class RedisJava {
 	static final String host = "hanzredis1.redis.cache.windows.net";
 
 	public static void main(String[] args) {
-		// flushDB();
+		//flushDB();
 		// write();
 		// read();
 		readlists("alerts", 1000);
@@ -69,7 +69,7 @@ public class RedisJava {
 		if (jedis.isConnected()) {
 			List<String> lists = jedis.lrange(listName, 0, sizeLimit - 1);
 			if (lists.isEmpty()) {
-				System.out.println("there is no "+ listName + " found.");
+				System.out.println("there are no "+ listName + " found.");
 			}
 
 			for (String item : lists) {
