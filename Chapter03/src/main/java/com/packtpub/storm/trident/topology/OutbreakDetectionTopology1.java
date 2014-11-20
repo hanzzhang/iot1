@@ -15,12 +15,14 @@ import com.packtpub.storm.trident.operator.*;
 import com.packtpub.storm.trident.spout.DiagnosisEventSpout;
 import com.packtpub.storm.trident.state.OutbreakTrendFactory;
 
+import redis.clients.jedis.Jedis;
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
 import storm.trident.operation.builtin.Count;
 
 public class OutbreakDetectionTopology1 {
 	public static void main(String[] args) throws Exception {
+		flushRedisDB();
 		StormTopology stormTopology = buildStromTopology(args);
 
 		if ((args != null) && (args.length > 0)) {
@@ -39,6 +41,19 @@ public class OutbreakDetectionTopology1 {
 			Thread.sleep(5000000L);
 			localCluster.shutdown();
 		}
+	}
+	
+	static void flushRedisDB() {
+		String host = "hanzredis1.redis.cache.windows.net";
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
+		jedis.auth("eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=");
+		jedis.connect();
+		if (jedis.isConnected()) {
+			jedis.flushDB();
+		} else {
+			System.out.println("connection error");
+		}
+		jedis.close();
 	}
 
 	static StormTopology buildStromTopology(String[] args) throws Exception {
@@ -62,10 +77,13 @@ public class OutbreakDetectionTopology1 {
 			inputStream = tridentTopology.newStream("message", spout);
 		}
 
-		inputStream.each(new Fields("message"), new DiseaseFilter()).each(new Fields("message"), new CityAssignment(), new Fields("city"))
-				.each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour")).groupBy(new Fields("cityDiseaseHour"))
+		inputStream.each(new Fields("message"), new DiseaseFilter())
+		.each(new Fields("message"), new CityAssignment(), new Fields("city"))
+				.each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour"))
+				.groupBy(new Fields("cityDiseaseHour"))
 				.persistentAggregate(new OutbreakTrendFactory(), new Count(), new Fields("count")).newValuesStream()
-				.each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert")).each(new Fields("alert"), new DispatchAlert(), new Fields());
+				.each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert"))
+				.each(new Fields("alert"), new DispatchAlert(), new Fields());
 		return tridentTopology.build();
 	}
 

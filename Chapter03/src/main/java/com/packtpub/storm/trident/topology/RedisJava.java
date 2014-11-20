@@ -9,11 +9,27 @@ public class RedisJava {
 	static final String host = "hanzredis1.redis.cache.windows.net";
 
 	public static void main(String[] args) {
-		write();
-		read();
+		// flushDB();
+		// write();
+		// read();
+		readlists("alerts", 1000);
+	}
+
+	static void flushDB() {
+		String host = "hanzredis1.redis.cache.windows.net";
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
+		jedis.auth("eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=");
+		jedis.connect();
+		if (jedis.isConnected()) {
+			jedis.flushDB();
+		} else {
+			System.out.println("connection error");
+		}
+		jedis.close();
 	}
 
 	static void write() {
+		String host = "hanzredis1.redis.cache.windows.net";
 		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		jedis.auth("eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=");
 		jedis.connect();
@@ -39,6 +55,25 @@ public class RedisJava {
 			List<String> citis = jedis.lrange("citis", 0, 2);
 			for (String city : citis) {
 				System.out.println(city);
+			}
+		} else {
+			System.out.println("connection error");
+		}
+		jedis.close();
+	}
+
+	static void readlists(String listName, int sizeLimit) {
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
+		jedis.auth("eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=");
+		jedis.connect();
+		if (jedis.isConnected()) {
+			List<String> lists = jedis.lrange(listName, 0, sizeLimit - 1);
+			if (lists.isEmpty()) {
+				System.out.println("there is no "+ listName + " found.");
+			}
+
+			for (String item : lists) {
+				System.out.println(item);
 			}
 		} else {
 			System.out.println("connection error");
