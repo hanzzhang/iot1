@@ -160,10 +160,6 @@
           <groupId>org.yaml</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>httpclient</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>disruptor</artifactId>
           <groupId>com.googlecode.disruptor</groupId>
         </exclusion>
