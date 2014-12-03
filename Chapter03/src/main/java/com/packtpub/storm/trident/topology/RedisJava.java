@@ -10,8 +10,8 @@ public class RedisJava {
 
 	public static void main(String[] args) {
 		//flushDB();
-		// write();
-		// read();
+		//write();
+		read();
 		readlists("alerts", 1000);
 	}
 

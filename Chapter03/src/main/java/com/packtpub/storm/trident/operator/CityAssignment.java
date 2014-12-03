@@ -3,9 +3,6 @@ package com.packtpub.storm.trident.operator;
 import com.google.gson.Gson;
 import com.packtpub.storm.trident.model.DiagnosisEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import storm.trident.operation.BaseFunction;
 import storm.trident.operation.TridentCollector;
 import storm.trident.tuple.TridentTuple;
@@ -18,7 +15,6 @@ import java.util.Map.Entry;
 
 public class CityAssignment extends BaseFunction {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LoggerFactory.getLogger(CityAssignment.class);
 
 	private static Map<String, double[]> CITIES = new HashMap<String, double[]>();
 

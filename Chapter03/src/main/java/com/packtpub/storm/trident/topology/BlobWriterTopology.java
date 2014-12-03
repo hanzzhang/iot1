@@ -13,14 +13,12 @@ import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 import com.microsoft.eventhubs.trident.OpaqueTridentEventHubSpout;
 import com.packtpub.storm.trident.operator.*;
 import com.packtpub.storm.trident.spout.DiagnosisEventSpout;
-import com.packtpub.storm.trident.state.OutbreakTrendFactory;
 
 import redis.clients.jedis.Jedis;
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
-import storm.trident.operation.builtin.Count;
 
-public class OutbreakDetectionTopology1 {
+public class BlobWriterTopology{
 	public static void main(String[] args) throws Exception {
 		//flushRedisDB();
 		StormTopology stormTopology = buildStormTopology(args);
@@ -68,6 +66,8 @@ public class OutbreakDetectionTopology1 {
 
 		// useEventHubSpout = false;
 
+		int numWorkers = getNumWorkers(args);
+
 		if (useEventHubSpout) {
 			System.out.println("useEventHubSpout = " + useEventHubSpout);
 			OpaqueTridentEventHubSpout spout = createOpaqueTridentEventHubSpout(args);
@@ -77,12 +77,11 @@ public class OutbreakDetectionTopology1 {
 			DiagnosisEventSpout spout = new DiagnosisEventSpout();
 			inputStream = tridentTopology.newStream("message", spout);
 		}
-		int numWorkers = getNumWorkers(args);
-		inputStream.parallelismHint(numWorkers)
-		.each(new Fields("message"), new DiseaseFilter()).each(new Fields("message"), new CityAssignment(), new Fields("city"))
-				.each(new Fields("message", "city"), new HourAssignment(), new Fields("hour", "cityDiseaseHour")).groupBy(new Fields("cityDiseaseHour"))
-				.persistentAggregate(new OutbreakTrendFactory(), new Count(), new Fields("count")).newValuesStream()
-				.each(new Fields("cityDiseaseHour", "count"), new OutbreakDetector(), new Fields("alert")).each(new Fields("alert"), new DispatchAlert(), new Fields());
+
+		inputStream
+		.parallelismHint(numWorkers)
+		.partitionAggregate(new Fields("message"),new ByteAggregator(), new Fields("blobname"));
+
 		return tridentTopology.build();
 	}
 

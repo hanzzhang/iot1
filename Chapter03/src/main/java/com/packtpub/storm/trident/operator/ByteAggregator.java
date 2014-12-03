@@ -2,6 +2,11 @@ package com.packtpub.storm.trident.operator;
 
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import backtype.storm.tuple.Values;
 import redis.clients.jedis.Jedis;
 import storm.trident.operation.BaseAggregator;
 import storm.trident.operation.TridentCollector;
@@ -10,14 +15,16 @@ import storm.trident.topology.TransactionAttempt;
 import storm.trident.tuple.TridentTuple;
 
 public class ByteAggregator extends BaseAggregator<BlobState> {
+
+	static Logger logger = (Logger) LoggerFactory.getLogger(BlobState.class);
 	private static final long serialVersionUID = 1L;
-	private static final int maxBlocksize = 1024; // 1024 * 1024 * 4;
+	private static final int maxBlockStringLength = 64; // 1024 * 1024 * 4 / 16;
 	private long txid;
 	private int partitionIndex;
 	@Override
 	public void prepare(@SuppressWarnings("rawtypes") Map conf, TridentOperationContext context) {
-		super.prepare(conf, context);
 		this.partitionIndex = context.getPartitionIndex();
+		super.prepare(conf, context);
 	}
 
 	public BlobState init(Object batchId, TridentCollector collector) {
@@ -29,7 +36,7 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 
 	public void aggregate(BlobState state, TridentTuple tuple, TridentCollector collector) {
 		String newLine = tuple.getString(0) + "\r\n";
-		if (state.blockdata.length() + newLine.length() <= maxBlocksize) {
+		if (state.blockdata.length() + newLine.length() <= maxBlockStringLength) {
 			state.blockdata = state.blockdata + newLine;
 		} else {
 			// ToDo: add logic to handle block overflow
@@ -39,82 +46,86 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 	public void complete(BlobState state, TridentCollector collector) {
 		// TODO: Write block to azure storage
 		state.persist();
+		collector.emit(new Values(state.partitionIndex));
 		// collector.emit(null);
 	}
 }
 
 class BlobState {
-	static int maxNumberOfBlocks = 50000;
+	static int maxNumberOfBlocks = 3;
 	String key_LastTxid;
+	String key_LastBlobid;
 	String key_LastBlockid;
-	String key_LastBlobname;
 
+	int partitionIndex;
 	long txid;
-	String blobname;
+	int blobid;
 	int blockid;
+
 	String blockdata;
+	Logger logger;
 
 	public BlobState(int partitionIndex, long txid) {
+		logger = (Logger) LoggerFactory.getLogger(BlobState.class);
 
-		String lastTxidStr;
-		String lastBlockIdString;
-		String lastBlobname;
-		long lastTxid;
-		int lastBlockId;
-
+		this.partitionIndex = partitionIndex;
 		this.txid = txid;
 		this.blockdata = "";
 
-		this.key_LastTxid = "LastTxid";
-		this.key_LastBlockid = String.valueOf(partitionIndex) + "_LastBlockid";
-		this.key_LastBlobname = String.valueOf(partitionIndex) + "_LastBlobname";
+		this.key_LastTxid = "LastTxid_" + String.valueOf(partitionIndex);
+		this.key_LastBlobid = "LastBlobid_" + String.valueOf(partitionIndex);
+		this.key_LastBlockid = "LastBlockid_" + String.valueOf(partitionIndex);
 
-		lastTxidStr = Redis.get(this.key_LastTxid);
-		if (lastTxidStr == null) {
-			lastTxid = 0;
-		} else {
+		long lastTxid = -1;
+		int lastBlobid = 1;
+		int lastBlockid = 1;
+		String lastTxidStr = Redis.get(this.key_LastTxid);
+		if (lastTxidStr != null) {
 			lastTxid = Long.parseLong(lastTxidStr);
 		}
-
-		lastBlockIdString = Redis.get(this.key_LastBlockid);
-		if (lastBlockIdString == null) {
-			lastBlockId = 1;
-		} else {
-			lastBlockId = Integer.parseInt(lastBlockIdString);
+		String lastBlockidStr = Redis.get(this.key_LastBlockid);
+		if (lastBlockidStr != null) {
+			lastBlockid = Integer.parseInt(lastBlockidStr);
 		}
-
-		lastBlobname = Redis.get(this.key_LastBlobname);
-		if (lastBlobname == null) {
-			lastBlobname = String.valueOf(10000000 + partitionIndex * 100000 + 1);
+		String lastBlobidStr = Redis.get(this.key_LastBlobid);
+		if (lastBlobidStr != null) {
+			lastBlobid = Integer.parseInt(lastBlobidStr);
 		}
 
 		if (lastTxidStr == null) { // this is the very first time the topology is running
-			this.blobname = String.valueOf(10000000 + partitionIndex * 100000 + 1);
+			this.blobid = 1;
 			this.blockid = 1;
 		} else if (txid == lastTxid) { // this is a replay, overwrite old block
-			this.blobname = lastBlobname;
-			this.blockid = lastBlockId;
-		} else if (lastBlockId < maxNumberOfBlocks) { // append new block to existing blob
-			this.blobname = lastBlobname;
-			this.blockid = lastBlockId + 1;
-		} else { // create a new blob
-			this.blobname = String.valueOf(Integer.parseInt(lastBlobname) + 1);
-			this.blockid = 1;
+			this.blobid = lastBlobid;
+			this.blockid = lastBlockid;
+		} else if (txid != lastTxid) { // this is a new batch
+			if (lastBlockid < maxNumberOfBlocks) { // append new block to existing blob
+				this.blobid = lastBlobid;
+				this.blockid = lastBlockid + 1;
+			} else { // if (lastBlockid == maxNumberOfBlocks) // create a new blob
+				this.blobid = lastBlobid + 1;
+				this.blockid = 1;
+			}
 		}
 	}
+	
 	public void persist() {
 		Redis.set(key_LastTxid, String.valueOf(this.txid));
-		Redis.set(this.key_LastBlobname, this.blobname);
+		Redis.set(this.key_LastBlobid, String.valueOf(this.blobid));
 		Redis.set(this.key_LastBlockid, String.valueOf(this.blockid));
+
+		logger.info(this.key_LastTxid + " = " + this.txid);
+		logger.info(this.key_LastBlobid + " = " + this.blobid);
+		logger.info(this.key_LastBlockid + " = " + this.blockid);
 	}
 }
 
 class Redis {
 	static final String host = "hanzredis1.redis.cache.windows.net";
-	static Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 	static final String password = "eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=";
 	static public String get(String key) {
 		String value = null;
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		jedis.auth(password);
 		jedis.connect();
 		if (jedis.isConnected()) {
@@ -127,6 +138,7 @@ class Redis {
 	}
 
 	static public void set(String key, String value) {
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		jedis.auth(password);
 		jedis.connect();
 		if (jedis.isConnected()) {
@@ -138,6 +150,7 @@ class Redis {
 	}
 
 	static public List<String> getList(String key, int maxLength) {
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		List<String> stringList = null;
 		jedis.auth(password);
 		jedis.connect();
@@ -151,6 +164,7 @@ class Redis {
 	}
 
 	static public void setList(String key, List<String> stringList) {
+		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		jedis.auth(password);
 		jedis.connect();
 		if (jedis.isConnected()) {
