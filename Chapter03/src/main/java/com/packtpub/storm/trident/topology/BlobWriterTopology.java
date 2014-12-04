@@ -56,6 +56,16 @@ public class BlobWriterTopology{
 	}
 
 	static StormTopology buildStormTopology(String[] args) throws Exception {
+		Properties properties = new Properties();
+		if ((args != null) && args.length > 1 && !args[1].toLowerCase().equals("test")) {
+			System.out.println("Loding config file from file " + args[1]);
+			properties.load(new FileReader(args[1]));
+		} else {
+			System.out.println("Loding config file from Config.properties");
+			properties.load(OutbreakDetectionTopology1.class.getClassLoader().getResourceAsStream("Config.properties"));
+		}
+
+		
 		TridentTopology tridentTopology = new TridentTopology();
 		Stream inputStream = null;
 
@@ -80,7 +90,7 @@ public class BlobWriterTopology{
 
 		inputStream
 		.parallelismHint(numWorkers)
-		.partitionAggregate(new Fields("message"),new ByteAggregator(), new Fields("blobname"));
+		.partitionAggregate(new Fields("message"),new ByteAggregator(properties), new Fields("blobname"));
 
 		return tridentTopology.build();
 	}
