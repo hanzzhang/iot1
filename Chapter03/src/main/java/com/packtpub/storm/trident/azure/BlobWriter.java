@@ -3,10 +3,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import clojure.lang.MapEntry;
 
 import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.CloudStorageAccount;
@@ -20,7 +24,7 @@ import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import com.microsoft.azure.storage.core.Base64;
 
 public class BlobWriter {
-	static public void upload(Properties properties, String blobName, String blockid, String data) {
+	static public void upload(Properties properties, String blobname, String blockIdStr, String data) {
 		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
 		InputStream stream = null;
 		try {
@@ -40,20 +44,68 @@ public class BlobWriter {
 			CloudBlobClient _blobClient = account.createCloudBlobClient();
 			CloudBlobContainer _container = _blobClient.getContainerReference(containerName);
 			_container.createIfNotExists();
-			CloudBlockBlob blockBlob = _container.getBlockBlobReference(blobName);
+			CloudBlockBlob blockBlob = _container.getBlockBlobReference(blobname);
 			BlobRequestOptions blobOptions = new BlobRequestOptions();
+			ArrayList<BlockEntry> newBlockList = new ArrayList<BlockEntry>();
+
+			stream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
+			BlockEntry newBlock = new BlockEntry(Base64.encode(blockIdStr.getBytes()), BlockSearchMode.UNCOMMITTED);
+			blockBlob.uploadBlock(newBlock.getId(), stream, -1);
+			newBlockList.add(newBlock);
+
 			ArrayList<BlockEntry> blocksBeforeUpload = new ArrayList<BlockEntry>();
 			if (blockBlob.exists(AccessCondition.generateEmptyCondition(), blobOptions, null)) {
 				blocksBeforeUpload = blockBlob.downloadBlockList(BlockListingFilter.COMMITTED, null, blobOptions, null);
 			}
-
-			stream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
-			BlockEntry newBlock = new BlockEntry(Base64.encode(blockid.getBytes()), BlockSearchMode.UNCOMMITTED);
-			blockBlob.uploadBlock(newBlock.getId(), stream, -1);
-
-			ArrayList<BlockEntry> newBlockList = new ArrayList<BlockEntry>();
-			newBlockList.add(newBlock);
 			blocksBeforeUpload.addAll(newBlockList);
+			blockBlob.commitBlockList(blocksBeforeUpload);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	static public void remove(Properties properties, String blobname, String blockIdStr) {
+		// remove blocks with blockid >= blockIdStr
+		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
+		InputStream stream = null;
+		try {
+			String accountName = properties.getProperty("storage.blob.account.name");
+			String accountKey = properties.getProperty("storage.blob.account.key");
+			String containerName = properties.getProperty("storage.blob.account.container");
+
+			String connectionStrFormatter = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s";
+			String connectionStr = String.format(connectionStrFormatter, accountName, accountKey);
+
+			logger.info("accountName = " + accountName);
+			logger.info("accountKey = " + accountKey);
+			logger.info("containerName = " + containerName);
+			logger.info("connectionStr = " + connectionStr);
+
+			CloudStorageAccount account = CloudStorageAccount.parse(String.format(connectionStr, accountName, accountKey));
+			CloudBlobClient _blobClient = account.createCloudBlobClient();
+			CloudBlobContainer _container = _blobClient.getContainerReference(containerName);
+			_container.createIfNotExists();
+			CloudBlockBlob blockBlob = _container.getBlockBlobReference(blobname);
+			BlobRequestOptions blobOptions = new BlobRequestOptions();
+
+			ArrayList<BlockEntry> blocksBeforeUpload = new ArrayList<BlockEntry>();
+			if (blockBlob.exists(AccessCondition.generateEmptyCondition(), blobOptions, null)) {
+				blocksBeforeUpload = blockBlob.downloadBlockList(BlockListingFilter.COMMITTED, null, blobOptions, null);
+			}
+			for (BlockEntry entry : blocksBeforeUpload) {
+				logger.info("old blob entry = " + entry.getId());
+				if (entry.getId().compareTo(blockIdStr) >= 0) {
+					blocksBeforeUpload.remove(entry);
+				}
+			}
 			blockBlob.commitBlockList(blocksBeforeUpload);
 		} catch (Exception e) {
 			e.printStackTrace();

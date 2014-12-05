@@ -1,18 +1,22 @@
-package com.packtpub.storm.trident.topology;
+package com.packtpub.storm.trident.redis;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Tuple;
 
 public class RedisJava {
 	// static String host = "localhost";
 	static final String host = "hanzredis1.redis.cache.windows.net";
 
 	public static void main(String[] args) {
-		//flushDB();
-		//write();
-		read();
-		readlists("alerts", 1000);
+		flushDB();
+		// write();
+		// read();
+		// readlists("alerts", 1000);
 	}
 
 	static void flushDB() {
@@ -69,7 +73,7 @@ public class RedisJava {
 		if (jedis.isConnected()) {
 			List<String> lists = jedis.lrange(listName, 0, sizeLimit - 1);
 			if (lists.isEmpty()) {
-				System.out.println("there are no "+ listName + " found.");
+				System.out.println("there are no " + listName + " found.");
 			}
 
 			for (String item : lists) {
@@ -80,4 +84,23 @@ public class RedisJava {
 		}
 		jedis.close();
 	}
+
+	static void putMap(String key) {
+			Map<String, String> userProperties = new HashMap<String, String>();
+			userProperties.put("username", "Hanz Zhang");
+			userProperties.put("firstName", "Hanz");
+			userProperties.put("lastName", "Zhang");
+			userProperties.put("email", "mshanz@hotmail.com");
+			Redis.putMap(key, userProperties);
+	}
+
+	static void writeMap(String key) {
+			Map<String, String> properties = Redis.getMap(key);
+			System.out.println(properties.get("username"));
+			System.out.println(properties.get("firstName"));
+			System.out.println(properties.get("lastName"));
+			System.out.println(properties.get("email"));
+	}
+	
+	
 }

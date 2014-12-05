@@ -12,15 +12,15 @@ import backtype.storm.tuple.Fields;
 import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 import com.microsoft.eventhubs.trident.OpaqueTridentEventHubSpout;
 import com.packtpub.storm.trident.operator.*;
+import com.packtpub.storm.trident.redis.Redis;
 import com.packtpub.storm.trident.spout.DiagnosisEventSpout;
 
-import redis.clients.jedis.Jedis;
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
 
 public class BlobWriterTopology{
 	public static void main(String[] args) throws Exception {
-		//flushRedisDB();
+		Redis.flushDB();
 		StormTopology stormTopology = buildStormTopology(args);
 
 		if ((args != null) && (args.length > 0)) {
@@ -34,25 +34,12 @@ public class BlobWriterTopology{
 		} else {
 			// if running in local development environment
 			Config config = new Config();
-			config.setMaxTaskParallelism(2);
+			config.setMaxTaskParallelism(10);
 			LocalCluster localCluster = new LocalCluster();
 			localCluster.submitTopology("localTopology", config, stormTopology);
 			Thread.sleep(5000000L);
 			localCluster.shutdown();
 		}
-	}
-
-	static void flushRedisDB() {
-		String host = "hanzredis1.redis.cache.windows.net";
-		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
-		jedis.auth("eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=");
-		jedis.connect();
-		if (jedis.isConnected()) {
-			jedis.flushDB();
-		} else {
-			System.out.println("connection error");
-		}
-		jedis.close();
 	}
 
 	static StormTopology buildStormTopology(String[] args) throws Exception {
@@ -88,8 +75,7 @@ public class BlobWriterTopology{
 			inputStream = tridentTopology.newStream("message", spout);
 		}
 
-		inputStream
-		.parallelismHint(numWorkers)
+		inputStream.parallelismHint(numWorkers)
 		.partitionAggregate(new Fields("message"),new ByteAggregator(properties), new Fields("blobname"));
 
 		return tridentTopology.build();
