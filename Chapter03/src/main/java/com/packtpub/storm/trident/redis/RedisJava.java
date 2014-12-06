@@ -3,10 +3,8 @@ package com.packtpub.storm.trident.redis;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Tuple;
 
 public class RedisJava {
 	// static String host = "localhost";

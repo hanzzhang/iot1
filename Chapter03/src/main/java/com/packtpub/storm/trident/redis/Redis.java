@@ -1,11 +1,9 @@
 package com.packtpub.storm.trident.redis;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Tuple;
 
 public class Redis {
 	static final String host = "hanzredis1.redis.cache.windows.net";
