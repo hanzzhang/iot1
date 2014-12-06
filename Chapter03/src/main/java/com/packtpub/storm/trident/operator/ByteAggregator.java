@@ -44,7 +44,7 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 		this.maxBlockBytes = getMaxBlockBytes();
 		int maxNumberOfBlocks = getMaxNumberOfblocks();
 		BlobState state = new BlobState(this.partitionIndex, this.txid, maxNumberOfBlocks);
-		// BlobWriter.remove(this.properties, state.blobname, state.blockidStr);
+		BlobWriter.remove(this.properties, state.blockIdStrFormat, state.block.blobname, state.block.blockidStr);
 		return state;
 	}
 

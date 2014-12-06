@@ -72,7 +72,7 @@ public class BlobWriter {
 		}
 	}
 
-	static public void remove(Properties properties, String blobname, String blockIdStr) {
+	static public void remove(Properties properties, String blockIdStrFormat, String blobname, String blockIdStr) {
 		// remove blocks with blockid >= blockIdStr
 		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
 		InputStream stream = null;
@@ -100,12 +100,13 @@ public class BlobWriter {
 			if (blockBlob.exists(AccessCondition.generateEmptyCondition(), blobOptions, null)) {
 				blocksBeforeUpload = blockBlob.downloadBlockList(BlockListingFilter.COMMITTED, null, blobOptions, null);
 			}
-			for (BlockEntry entry : blocksBeforeUpload) {
-				logger.info("old blob entry = " + entry.getId());
-				if (entry.getId().compareTo(blockIdStr) >= 0) {
-					blocksBeforeUpload.remove(entry);
-				}
-			}
+			int blockid = Integer.parseInt(blockIdStr);
+			int size = blocksBeforeUpload.size();
+			for (int i = size; i >= blockid; i--) {
+				String idStr = String.format(blockIdStrFormat, i);
+				BlockEntry entry = new BlockEntry(Base64.encode(idStr.getBytes()), BlockSearchMode.UNCOMMITTED);
+				blocksBeforeUpload.remove(entry);
+			}		
 			blockBlob.commitBlockList(blocksBeforeUpload);
 		} catch (Exception e) {
 			e.printStackTrace();

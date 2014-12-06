@@ -17,7 +17,7 @@ public class BlobState {
 	private int maxNumberOfBlocks = 6;
 	private static final String blobidBlockidStrFormat = "%05d_%05d";
 	private static final String blobNameFormat = "aaa/blobwriter/%05d/%05d";
-	private static final String blockIdStrFormat = "%05d";
+	public String blockIdStrFormat = "%05d";
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(BlobState.class);
 
 	private String key_txid;
@@ -120,8 +120,8 @@ public class BlobState {
 	public class Block {
 		int blobid = 1;
 		int blockid = 1;
-		String blobname;
-		String blockidStr;
+		public String blobname;
+		public String blockidStr;
 		public String blockdata;
 		
 		public Block(){
