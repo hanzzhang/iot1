@@ -75,7 +75,6 @@ public class BlobWriter {
 	static public void remove(Properties properties, String blockIdStrFormat, String blobname, String blockIdStr) {
 		// remove blocks with blockid >= blockIdStr
 		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
-		InputStream stream = null;
 		try {
 			String accountName = properties.getProperty("storage.blob.account.name");
 			String accountKey = properties.getProperty("storage.blob.account.key");
@@ -110,14 +109,6 @@ public class BlobWriter {
 			blockBlob.commitBlockList(blocksBeforeUpload);
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		} 
 	}
 }
