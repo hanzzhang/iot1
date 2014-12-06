@@ -34,6 +34,7 @@ public class BlobState {
 		this.key_txid = "txid_" + String.valueOf(partitionIndex);
 		this.key_blocklist = "blocklist_" + String.valueOf(partitionIndex);;
 		this.blocklist = new ArrayList<String>();
+		
 		String lastTxidStr = Redis.get(this.key_txid);
 		if (lastTxidStr == null) { // the very first time the topology is running
 			this.block = new Block();
@@ -90,15 +91,15 @@ public class BlobState {
 
 	private Block getFirstBlock() {
 		Block block = new Block();
-		List<String> lastBlobidBlockidList = Redis.getList(this.key_blocklist, 50000);
-		if (lastBlobidBlockidList != null && lastBlobidBlockidList.size() > 0) {
-			String blobidBlockidStr = lastBlobidBlockidList.get(0);
-			for (String s : lastBlobidBlockidList) {
-				if (s.compareTo(blobidBlockidStr) < 0) {// find the first block written in the last batch
-					blobidBlockidStr = s;
+		List<String> lastblocks = Redis.getList(this.key_blocklist, 50000);
+		if (lastblocks != null && lastblocks.size() > 0) {
+			String blockStr = lastblocks.get(0);
+			for (String s : lastblocks) {
+				if (s.compareTo(blockStr) < 0) {// find the first block written in the last batch
+					blockStr = s;
 				}
 			}
-			String[] strArray = blobidBlockidStr.split("_");
+			String[] strArray = blockStr.split("_");
 			block.blobid = Integer.parseInt(strArray[0]);
 			block.blockid = Integer.parseInt(strArray[1]);
 		}

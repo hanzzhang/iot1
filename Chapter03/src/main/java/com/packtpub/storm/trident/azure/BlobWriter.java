@@ -97,14 +97,17 @@ public class BlobWriter {
 			}
 			int blockid = Integer.parseInt(blockIdStr);
 			int size = blocksBeforeUpload.size();
+			//int size = 50000;
 			for (int i = size; i >= blockid; i--) {
 				String idStr = String.format(blockIdStrFormat, i);
 				BlockEntry entry = new BlockEntry(Base64.encode(idStr.getBytes()), BlockSearchMode.UNCOMMITTED);
-				blocksBeforeUpload.remove(entry);
-			}		
+				if (blocksBeforeUpload.contains(entry)) {
+					blocksBeforeUpload.remove(entry);
+				}
+			}
 			blockBlob.commitBlockList(blocksBeforeUpload);
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
+		}
 	}
 }

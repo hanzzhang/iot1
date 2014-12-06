@@ -44,7 +44,7 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 		this.maxBlockBytes = getMaxBlockBytes();
 		int maxNumberOfBlocks = getMaxNumberOfblocks();
 		BlobState state = new BlobState(this.partitionIndex, this.txid, maxNumberOfBlocks);
-		BlobWriter.remove(this.properties, state.blockIdStrFormat, state.block.blobname, state.block.blockidStr);
+		//BlobWriter.remove(this.properties, state.blockIdStrFormat, state.block.blobname, state.block.blockidStr);
 		return state;
 	}
 
@@ -52,33 +52,33 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 
 		String tupleStr = tuple.getString(0);
 		if (tupleStr != null && tupleStr.length() > 0) {
-			String newLine = tupleStr + "\r\n";
-			if (newLine.getBytes().length > this.maxBlockBytes) {
+			String msg = tupleStr + "\r\n";
+			if (msg.getBytes().length > this.maxBlockBytes) {
 				throw new FailedException();
 			}
 
-			if ((state.block.blockdata + newLine).getBytes().length <= this.maxBlockBytes) {
-				state.block.addData(newLine);
-			} else { // upload data, and go to next block
+			if ((state.block.blockdata + msg).getBytes().length <= this.maxBlockBytes) {//if fits within a block
+				state.block.addData(msg);
+			} else { // upload data, and then go to next block
 				logger.info("Upload Block");
 				state.block.upload(this.properties);
 				state.needPersist = true;
 				state.buildNextblock();
-				state.block.addData(newLine);
+				state.block.addData(msg);
 			}
 		}
 	}
 
 	public void complete(BlobState state, TridentCollector collector) {
 		if (state.block.blockdata.length() > 0) {
-			state.block.upload(this.properties);
+			state.block.upload(this.properties);  //upload the last block
 			state.needPersist = true;
 		}
 		
 		if (state.needPersist) {
 			state.persist();
 		}
-		collector.emit(new Values(this.partitionIndex));
+		collector.emit(new Values(1));  //just emit a value
 	}
 
 	private int getMaxNumberOfblocks() {
