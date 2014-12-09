@@ -47,8 +47,7 @@ public class BlobWriterTopology {
 			System.out.println("Loding config file from Config.properties");
 			properties.load(BlobWriterTopology.class.getClassLoader().getResourceAsStream("Config.properties"));
 		}
-
-		setRedis(properties);
+		Redis.flushDB(Redis.getHost(properties), Redis.getPassword(properties));
 
 		TridentTopology tridentTopology = new TridentTopology();
 		Stream inputStream = null;
@@ -129,12 +128,4 @@ public class BlobWriterTopology {
 		}
 		return Integer.parseInt(properties.getProperty("eventhubspout.partitions.count"));
 	}
-	
-	static void setRedis(Properties properties) {
-		String host = properties.getProperty("redis.host");
-		String password = properties.getProperty("redis.password");
-		Redis.setHostAndPassword(host, password);
-		Redis.flushDB();
-	}
-
 }

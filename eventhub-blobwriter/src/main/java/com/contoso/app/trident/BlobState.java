@@ -2,6 +2,7 @@ package com.contoso.app.trident;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,8 @@ public class BlobState {
 	private static final String blobNameFormat = "aaa/blobwriter/%05d/%05d";
 	public String blockIdStrFormat = "%05d";
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(BlobState.class);
+	private String redisHost = null;
+	private String redisPassword = null;
 
 	private String key_txid;
 	private String key_blocklist;
@@ -22,15 +25,17 @@ public class BlobState {
 	private long txid;
 	private List<String> blocklist;
 
-	public BlobState(int partitionIndex, long txid, int maxNumberOfBlocks) {
-		this.maxNumberOfBlocks = maxNumberOfBlocks;
+	public BlobState(int partitionIndex, long txid, Properties properties) {
 		this.partitionIndex = partitionIndex;
 		this.txid = txid;
+		this.maxNumberOfBlocks = getMaxNumberOfblocks(properties);
+		redisHost = Redis.getHost(properties);
+		redisPassword = Redis.getPassword(properties);
 		this.key_txid = "txid_" + String.valueOf(partitionIndex);
 		this.key_blocklist = "blocklist_" + String.valueOf(partitionIndex);;
 		this.blocklist = new ArrayList<String>();
-		
-		String lastTxidStr = Redis.get(this.key_txid);
+
+		String lastTxidStr = Redis.get(redisHost, redisPassword, this.key_txid);
 		if (lastTxidStr == null) { // the very first time the topology is running
 			this.block = new Block();
 		} else {
@@ -50,8 +55,8 @@ public class BlobState {
 	}
 
 	public void persist() {
-		Redis.set(this.key_txid, String.valueOf(this.txid));
-		Redis.setList(this.key_blocklist, this.blocklist);
+		Redis.set(redisHost, redisPassword, this.key_txid, String.valueOf(this.txid));
+		Redis.setList(redisHost, redisPassword, this.key_blocklist, this.blocklist);
 
 		logger.info(this.key_txid + " = " + this.txid);
 		for (String s : this.blocklist) {
@@ -69,7 +74,7 @@ public class BlobState {
 
 	private Block getLastBlock() {
 		Block block = new Block();
-		List<String> lastBlobidBlockidList = Redis.getList(this.key_blocklist, 50000);
+		List<String> lastBlobidBlockidList = Redis.getList(redisHost, redisPassword, this.key_blocklist, 50000);
 		if (lastBlobidBlockidList != null && lastBlobidBlockidList.size() > 0) {
 			String blobidBlockidStr = lastBlobidBlockidList.get(0);
 			for (String s : lastBlobidBlockidList) {
@@ -86,7 +91,7 @@ public class BlobState {
 
 	private Block getFirstBlock() {
 		Block block = new Block();
-		List<String> lastblocks = Redis.getList(this.key_blocklist, 50000);
+		List<String> lastblocks = Redis.getList(redisHost, redisPassword, this.key_blocklist, 50000);
 		if (lastblocks != null && lastblocks.size() > 0) {
 			String blockStr = lastblocks.get(0);
 			for (String s : lastblocks) {
@@ -137,4 +142,15 @@ public class BlobState {
 			BlobWriter.upload(properties, this.blobname, this.blockidStr, this.blockdata);
 		}
 	}
+
+	private int getMaxNumberOfblocks(Properties properties) {
+		int maxNumberOfBlocks = 10;
+		String maxNumberOfBlocksStr = properties.getProperty("storage.blob.block.number.max");
+		if (maxNumberOfBlocksStr != null) {
+			maxNumberOfBlocks = Integer.parseInt(maxNumberOfBlocksStr);
+		}
+		return maxNumberOfBlocks;
+	}
+	
+
 }

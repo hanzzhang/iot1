@@ -36,8 +36,7 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 			this.txid = ((TransactionAttempt) batchId).getTransactionId();
 		}
 		this.maxBlockBytes = getMaxBlockBytes();
-		int maxNumberOfBlocks = getMaxNumberOfblocks();
-		BlobState state = new BlobState(this.partitionIndex, this.txid, maxNumberOfBlocks);
+		BlobState state = new BlobState(this.partitionIndex, this.txid, this.properties);
 		//BlobWriter.remove(this.properties, state.blockIdStrFormat, state.block.blobname, state.block.blockidStr);
 		return state;
 	}
@@ -73,15 +72,6 @@ public class ByteAggregator extends BaseAggregator<BlobState> {
 			state.persist();
 		}
 		collector.emit(new Values(1));  //just emit a value
-	}
-
-	private int getMaxNumberOfblocks() {
-		int maxNumberOfBlocks = 10;
-		String maxNumberOfBlocksStr = properties.getProperty("storage.blob.block.number.max");
-		if (maxNumberOfBlocksStr != null) {
-			maxNumberOfBlocks = Integer.parseInt(maxNumberOfBlocksStr);
-		}
-		return maxNumberOfBlocks;
 	}
 
 	private int getMaxBlockBytes() {
