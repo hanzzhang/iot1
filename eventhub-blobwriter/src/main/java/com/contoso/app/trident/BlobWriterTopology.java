@@ -1,19 +1,21 @@
 package com.contoso.app.trident;
 import java.io.FileReader;
 import java.util.Properties;
+
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.tuple.Fields;
+
 import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 import com.microsoft.eventhubs.trident.OpaqueTridentEventHubSpout;
+
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
 
-public class BlobWriterTopology{
+public class BlobWriterTopology {
 	public static void main(String[] args) throws Exception {
-		Redis.flushDB();
 		StormTopology stormTopology = buildStormTopology(args);
 
 		if ((args != null) && (args.length > 0)) {
@@ -34,9 +36,10 @@ public class BlobWriterTopology{
 			localCluster.shutdown();
 		}
 	}
-
+	
 	static StormTopology buildStormTopology(String[] args) throws Exception {
 		Properties properties = new Properties();
+
 		if ((args != null) && args.length > 1 && !args[1].toLowerCase().equals("test")) {
 			System.out.println("Loding config file from file " + args[1]);
 			properties.load(new FileReader(args[1]));
@@ -44,6 +47,8 @@ public class BlobWriterTopology{
 			System.out.println("Loding config file from Config.properties");
 			properties.load(BlobWriterTopology.class.getClassLoader().getResourceAsStream("Config.properties"));
 		}
+
+		setRedis(properties);
 
 		TridentTopology tridentTopology = new TridentTopology();
 		Stream inputStream = null;
@@ -67,8 +72,7 @@ public class BlobWriterTopology{
 			inputStream = tridentTopology.newStream("message", spout);
 		}
 
-		inputStream.parallelismHint(numWorkers)
-		.partitionAggregate(new Fields("message"),new ByteAggregator(properties), new Fields("blobname"));
+		inputStream.parallelismHint(numWorkers).partitionAggregate(new Fields("message"), new ByteAggregator(properties), new Fields("blobname"));
 
 		return tridentTopology.build();
 	}
@@ -106,7 +110,8 @@ public class BlobWriterTopology{
 		System.out.println("  partition count: " + partitionCount);
 		System.out.println("  checkpoint interval: " + checkpointIntervalInSeconds);
 		System.out.println("  receiver credits: " + receiverCredits);
-		spoutConfig = new EventHubSpoutConfig(username, password, namespaceName, entityPath, partitionCount, zkEndpointAddress, checkpointIntervalInSeconds, receiverCredits);
+		spoutConfig = new EventHubSpoutConfig(username, password, namespaceName, entityPath, partitionCount, zkEndpointAddress, checkpointIntervalInSeconds,
+				receiverCredits);
 		if ((args != null) && args.length > 0) {
 			spoutConfig.setTopologyName(args[0]);
 		}
@@ -124,4 +129,12 @@ public class BlobWriterTopology{
 		}
 		return Integer.parseInt(properties.getProperty("eventhubspout.partitions.count"));
 	}
+	
+	static void setRedis(Properties properties) {
+		String host = properties.getProperty("redis.host");
+		String password = properties.getProperty("redis.password");
+		Redis.setHostAndPassword(host, password);
+		Redis.flushDB();
+	}
+
 }

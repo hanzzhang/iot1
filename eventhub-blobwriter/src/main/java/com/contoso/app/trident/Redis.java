@@ -3,8 +3,14 @@ import java.util.List;
 import java.util.Map;
 import redis.clients.jedis.Jedis;
 public class Redis {
-	static final String host = "hanzredis1.redis.cache.windows.net";
-	static final String password = "eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=";
+	static String host = null;
+	static String password = null;
+	
+	static public void setHostAndPassword(String host, String password) {
+		Redis.host = host;
+		Redis.password = password;		
+	}
+
 
 	static public void flushDB() {
 		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
