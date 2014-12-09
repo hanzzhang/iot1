@@ -1,0 +1,1 @@
+C:\iotjava\SendEvents\SendEvents\bin\Debug\SendEvents.exe.config
