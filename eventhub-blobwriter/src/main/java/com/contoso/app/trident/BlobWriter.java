@@ -24,17 +24,21 @@ public class BlobWriter {
 		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
 		InputStream stream = null;
 		try {
+			logger.info("Calling BlobWriter upload");
 			String accountName = properties.getProperty("storage.blob.account.name");
 			String accountKey = properties.getProperty("storage.blob.account.key");
 			String containerName = properties.getProperty("storage.blob.account.container");
-
 			String connectionStrFormatter = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s";
 			String connectionStr = String.format(connectionStrFormatter, accountName, accountKey);
 
+			logger.info("BlobWriter upload ......");
 			logger.info("accountName = " + accountName);
 			logger.info("accountKey = " + accountKey);
 			logger.info("containerName = " + containerName);
 			logger.info("connectionStr = " + connectionStr);
+			logger.info("blobname = " + blobname);
+			logger.info("blockIdStr = " + blockIdStr);
+			logger.info("data= " + data);
 
 			CloudStorageAccount account = CloudStorageAccount.parse(String.format(connectionStr, accountName, accountKey));
 			CloudBlobClient _blobClient = account.createCloudBlobClient();
@@ -42,18 +46,18 @@ public class BlobWriter {
 			_container.createIfNotExists();
 			CloudBlockBlob blockBlob = _container.getBlockBlobReference(blobname);
 			BlobRequestOptions blobOptions = new BlobRequestOptions();
-			ArrayList<BlockEntry> newBlockList = new ArrayList<BlockEntry>();
-
 			stream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
 			BlockEntry newBlock = new BlockEntry(Base64.encode(blockIdStr.getBytes()), BlockSearchMode.UNCOMMITTED);
 			blockBlob.uploadBlock(newBlock.getId(), stream, -1);
-			newBlockList.add(newBlock);
 
 			ArrayList<BlockEntry> blocksBeforeUpload = new ArrayList<BlockEntry>();
 			if (blockBlob.exists(AccessCondition.generateEmptyCondition(), blobOptions, null)) {
 				blocksBeforeUpload = blockBlob.downloadBlockList(BlockListingFilter.COMMITTED, null, blobOptions, null);
 			}
-			blocksBeforeUpload.addAll(newBlockList);
+			
+			if (!blocksBeforeUpload.contains(newBlock)) {
+				blocksBeforeUpload.add(newBlock);
+			}
 			blockBlob.commitBlockList(blocksBeforeUpload);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -97,7 +101,7 @@ public class BlobWriter {
 			}
 			int blockid = Integer.parseInt(blockIdStr);
 			int size = blocksBeforeUpload.size();
-			//int size = 50000;
+			// int size = 50000;
 			for (int i = size; i >= blockid; i--) {
 				String idStr = String.format(blockIdStrFormat, i);
 				BlockEntry entry = new BlockEntry(Base64.encode(idStr.getBytes()), BlockSearchMode.UNCOMMITTED);

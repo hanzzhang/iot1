@@ -1,1 +1,13 @@
 C:\iotjava\SendEvents\SendEvents\bin\Debug\SendEvents.exe.config
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\SendEvents.exe.config
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\SendEvents.exe
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\SendEvents.pdb
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\Microsoft.ServiceBus.dll
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\Microsoft.WindowsAzure.Configuration.dll
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\Newtonsoft.Json.dll
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\Microsoft.ServiceBus.xml
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\Microsoft.WindowsAzure.Configuration.xml
+C:\GitHub\iot1\SendEvents\SendEvents\bin\Debug\Newtonsoft.Json.xml
+C:\GitHub\iot1\SendEvents\SendEvents\obj\Debug\SendEvents.csprojResolveAssemblyReference.cache
+C:\GitHub\iot1\SendEvents\SendEvents\obj\Debug\SendEvents.exe
+C:\GitHub\iot1\SendEvents\SendEvents\obj\Debug\SendEvents.pdb
