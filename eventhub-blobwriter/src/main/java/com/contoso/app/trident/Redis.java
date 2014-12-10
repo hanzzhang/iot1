@@ -1,4 +1,5 @@
 package com.contoso.app.trident;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -9,6 +10,30 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 public class Redis {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(Redis.class);
+	public static void main(String[] args) {
+		testList();
+	}
+	public static void testList(){
+		String host = "hanzredis1.redis.cache.windows.net";
+		String password = "eQoMISLEQf7mwCDetcvIUT+P9WGGK9KGsdf7/UOGkTg=";
+		List<String>li = new ArrayList<String>();
+		li.add("1");
+		li.add("2");
+		li.add("3");
+		li.add("4");	
+		Redis.setList(host, password, "key", li);
+		List<String>li1 = new ArrayList<String>();
+		li1.add("1a");
+		li1.add("2a");
+		li1.add("3a");
+		li1.add("4a");	
+		Redis.setList(host, password, "key", li1);
+		
+		List<String>li2 = Redis.getList(host, password, "key", 50000);
+		for(String s:li2){
+			System.out.println(s);
+		}	
+	}
 
 	static public String getHost(Properties properties) {
 		logger.info("getHost Begin");
@@ -87,7 +112,6 @@ public class Redis {
 		logger.info("getList Begin");
 		logger.info("getList params: host= " + host + " key= " + key + " maxLength= " + maxLength);
 
-
 		Jedis jedis = new Jedis(host, 6380, 3600, true); // host, port, timeout,isSSL
 		List<String> stringList = null;
 		jedis.auth(password);
@@ -108,9 +132,7 @@ public class Redis {
 
 	static public void setList(String host, String password, String key, List<String> stringList) {
 		logger.info("setList Begin");
-		logger.info("setList params: host=%s key=%s value=%s", host, key);
 		logger.info("getList params: host= " + host + " key= " + key);
-
 
 		if (stringList == null || stringList.isEmpty()) {
 			logger.info("setList params stringList is empty  !!!!!!");
