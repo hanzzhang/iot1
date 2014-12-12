@@ -97,7 +97,7 @@ public class BlockState {
 
 	private Block getLastBlockInLastFailedBatch() {
 		if (LogSetting.LOG_BLOCK && LogSetting.LOG_METHOD_BEGIN) {
-			logger.info(this.partition_tx_logStr + "getLastBlock Begin");
+			logger.info(this.partition_tx_logStr + "getLastBlockInLastFailedBatch Begin");
 		}
 
 		Block block = new Block();
@@ -125,8 +125,8 @@ public class BlockState {
 		block.build();
 
 		if (LogSetting.LOG_BLOCK && LogSetting.LOG_METHOD_END) {
-			logger.info(this.partition_tx_logStr + "getLastBlock returns blobid=" + block.blobid + ", blockid=" + block.blockid);
-			logger.info(this.partition_tx_logStr + "getLastBlock End");
+			logger.info(this.partition_tx_logStr + "getLastBlockInLastFailedBatch returns blobid=" + block.blobid + ", blockid=" + block.blockid);
+			logger.info(this.partition_tx_logStr + "getLastBlockInLastFailedBatch End");
 		}
 		return block;
 	}
