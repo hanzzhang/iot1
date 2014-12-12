@@ -24,22 +24,27 @@ public class BlobWriter {
 		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
 		InputStream stream = null;
 		try {
-			logger.info("Calling BlobWriter upload");
+			if (LogSetting.LOG_BLOB_WRITER && LogSetting.LOG_METHOD_BEGIN) {
+				logger.info("upload Begin");
+			}
+
 			String accountName = properties.getProperty("storage.blob.account.name");
 			String accountKey = properties.getProperty("storage.blob.account.key");
 			String containerName = properties.getProperty("storage.blob.account.container");
 			String connectionStrFormatter = "DefaultEndpointsProtocol=http;AccountName=%s;AccountKey=%s";
 			String connectionStr = String.format(connectionStrFormatter, accountName, accountKey);
 
-			logger.info("BlobWriter upload ......");
-			logger.info("accountName = " + accountName);
-			logger.info("accountKey = " + accountKey);
-			logger.info("containerName = " + containerName);
-			logger.info("connectionStr = " + connectionStr);
-			logger.info("blobname = " + blobname);
-			logger.info("blockIdStr = " + blockIdStr);
-			logger.info("data= " + data);
-
+			if (LogSetting.LOG_BLOB_WRITER) {
+				logger.info("upload accountName = " + accountName);
+				logger.info("upload accountKey = " + accountKey);
+				logger.info("upload containerName = " + containerName);
+				logger.info("upload connectionStr = " + connectionStr);
+				logger.info("upload blobname = " + blobname);
+				logger.info("upload blockIdStr = " + blockIdStr);
+			}
+			if (LogSetting.LOG_BLOB_WRITER_DATA) {
+				logger.info("upload data= \r\n" + data);
+			}
 			CloudStorageAccount account = CloudStorageAccount.parse(String.format(connectionStr, accountName, accountKey));
 			CloudBlobClient _blobClient = account.createCloudBlobClient();
 			CloudBlobContainer _container = _blobClient.getContainerReference(containerName);
@@ -48,16 +53,42 @@ public class BlobWriter {
 			BlobRequestOptions blobOptions = new BlobRequestOptions();
 			stream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
 			BlockEntry newBlock = new BlockEntry(Base64.encode(blockIdStr.getBytes()), BlockSearchMode.UNCOMMITTED);
-			blockBlob.uploadBlock(newBlock.getId(), stream, -1);
 
 			ArrayList<BlockEntry> blocksBeforeUpload = new ArrayList<BlockEntry>();
 			if (blockBlob.exists(AccessCondition.generateEmptyCondition(), blobOptions, null)) {
 				blocksBeforeUpload = blockBlob.downloadBlockList(BlockListingFilter.COMMITTED, null, blobOptions, null);
 			}
-			
+			if (LogSetting.LOG_BLOB_WRITER_BLOCKLIST_BEFORE_UPLOAD) {
+				int i = 0;
+				String id = null;
+				for (BlockEntry e : blocksBeforeUpload) {
+					i++;
+					id = e.getId();
+					logger.info("BlockEntry Before Upload id=" + id + ", Index = " + i);
+				}
+				if (id != null) {
+					logger.info("BlockEntry Before Upload id=" + id + ", Index = " + i + " --last before");
+				}
+			}
+
+			blockBlob.uploadBlock(newBlock.getId(), stream, -1);
 			if (!blocksBeforeUpload.contains(newBlock)) {
 				blocksBeforeUpload.add(newBlock);
 			}
+
+			if (LogSetting.LOG_BLOB_WRITER_BLOCKLIST_AFTER_UPLOAD) {
+				int i = 0;
+				String id = null;
+				for (BlockEntry e : blocksBeforeUpload) {
+					i++;
+					id = e.getId();
+					logger.info("BlockEntry After Upload id=" + id + ", Index = " + i);
+				}
+				if (id != null) {
+					logger.info("BlockEntry After Upload id=" + id + ", Index = " + i + " --last after");
+				}
+			}
+
 			blockBlob.commitBlockList(blocksBeforeUpload);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,12 +101,19 @@ public class BlobWriter {
 				}
 			}
 		}
+		if (LogSetting.LOG_BLOB_WRITER && LogSetting.LOG_METHOD_END) {
+			logger.info("upload End");
+		}
 	}
 
 	static public void remove(Properties properties, String blockIdStrFormat, String blobname, String blockIdStr) {
 		// remove blocks with blockid >= blockIdStr
 		Logger logger = (Logger) LoggerFactory.getLogger(BlobWriter.class);
 		try {
+			if (LogSetting.LOG_BLOB_WRITER && LogSetting.LOG_METHOD_BEGIN) {
+				logger.info("remove Begin");
+			}
+
 			String accountName = properties.getProperty("storage.blob.account.name");
 			String accountKey = properties.getProperty("storage.blob.account.key");
 			String containerName = properties.getProperty("storage.blob.account.container");
@@ -113,5 +151,9 @@ public class BlobWriter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		if (LogSetting.LOG_BLOB_WRITER && LogSetting.LOG_METHOD_END) {
+			logger.info("remove End");
+		}
+
 	}
 }
