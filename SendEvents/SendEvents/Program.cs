@@ -16,7 +16,7 @@ namespace SendEvents
         static string eventHubName = "hanzeventhub1";
         static string eventHubNamespace = "hanzeventhub1-ns";
         static string sharedAccessPolicyName = "devices";
-        static string sharedAccessPolicyKey = "Lc4CQbXsZTtkyDOrj5cGB0t0zkLLcMjAT/+/40993FA=";
+        static string sharedAccessPolicyKey = "8Aw7zeko+0VB1Or335RT/98LALc/58suW3ZsXtzOwbQ=";
         static void Main(string[] args)
         {
             var settings = new MessagingFactorySettings()
