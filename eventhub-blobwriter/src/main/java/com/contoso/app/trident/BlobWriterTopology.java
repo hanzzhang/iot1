@@ -23,7 +23,7 @@ public class BlobWriterTopology {
 
 		if ((args != null) && (args.length > 0)) { // if running in storm cluster, the first argument is the topology name
 			String topologyName = args[0];
-			StormTopology stormTopology = buildStormTopology(topologyName);
+			StormTopology stormTopology = buildTopology(topologyName);
 			Config config = new Config();
 			numWorkers = Integer.parseInt(properties.getProperty("eventhubspout.partitions.count"));
 			config.setNumWorkers(numWorkers);
@@ -31,7 +31,7 @@ public class BlobWriterTopology {
 			StormSubmitter.submitTopology(topologyName, config, stormTopology);
 		} else {// if running in local development environment, there is no argument for topology name
 			String topologyName = "localTopology";
-			StormTopology stormTopology = buildStormTopology(topologyName);
+			StormTopology stormTopology = buildTopology(topologyName);
 			Config config = new Config();
 			config.setMaxTaskParallelism(10);
 			LocalCluster localCluster = new LocalCluster();
@@ -41,7 +41,7 @@ public class BlobWriterTopology {
 		}
 	}
 
-	static StormTopology buildStormTopology(String topologyName) {
+	static StormTopology buildTopology(String topologyName) {
 		Redis.flushDB(Redis.getHost(properties), Redis.getPassword(properties));
 		TridentTopology tridentTopology = new TridentTopology();
 		Stream inputStream = null;
